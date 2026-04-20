@@ -9,7 +9,7 @@ from nfa import NFA
 from subset_construction import nfa_to_dfa
 from minimizer import minimize_dfa
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static", template_folder="templates")
 
 # limit request size so someone can't send huge payloads
 app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024
@@ -209,17 +209,14 @@ def simulate():
         traceback.print_exc()
         return jsonify({'success': False, 'error': 'Internal server error during simulation.'}), 500
 
-
 if __name__ == '__main__':
-    # debug only if explicitly enabled (safe default)
     debug_mode = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
 
-    if debug_mode:
-        print("Running in debug mode")
+    port = int(os.environ.get("PORT", 5000))
 
     print("=" * 50)
     print("  NFA → DFA → Minimized DFA Simulator")
-    print("  http://localhost:5000")
+    print(f"  Running on port {port}")
     print("=" * 50)
 
-    app.run(debug=debug_mode, port=5000)
+    app.run(host="0.0.0.0", port=port, debug=debug_mode)
