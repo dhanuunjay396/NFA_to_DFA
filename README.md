@@ -1,8 +1,14 @@
 # NFA to DFA Converter and Minimizer
 
-A web-based application that converts a Non-deterministic Finite Automaton (NFA) into a Deterministic Finite Automaton (DFA) using the subset construction method, and further minimizes the DFA using Hopcroft’s algorithm.
+A web-based application that converts a Non-deterministic Finite Automaton (NFA) into a Deterministic Finite Automaton (DFA) using the subset construction method, and further minimizes the DFA using Hopcroft's algorithm.
 
 The project is built as part of a Theory of Computation course and includes an interactive interface for constructing automata, visualizing transitions, and simulating input strings.
+
+## 🚀 Live Demo
+
+👉 **https://nfa-to-dfa.onrender.com**
+
+> Note: The app is hosted on Render's free tier. It may take up to 50 seconds to load after inactivity.
 
 ---
 
@@ -23,11 +29,12 @@ The application allows users to:
 * Interactive NFA construction
 * Support for epsilon (ε) transitions
 * Subset construction algorithm for NFA to DFA conversion
-* Hopcroft’s algorithm for DFA minimization
+* Hopcroft's algorithm for DFA minimization
 * Step-by-step computation tracking
 * String simulation across all automata
 * Graph visualization using Cytoscape.js
 * Transition table generation
+* Export automata as PNG and JSON
 
 ---
 
@@ -37,6 +44,7 @@ The application allows users to:
 * HTML, CSS, JavaScript
 * Cytoscape.js for graph visualization
 * Gunicorn for production server
+* Render for deployment
 
 ---
 
@@ -90,15 +98,20 @@ http://localhost:5000
 
 ## Deployment
 
-This project can be deployed using Render.
+This project is deployed on **Render**: https://nfa-to-dfa.onrender.com
 
-Configuration:
+To deploy your own instance:
 
-* Build Command:
-  `pip install -r requirements.txt`
+1. Push the repo to GitHub
+2. Create a new Web Service on [Render](https://render.com)
+3. Use the following configuration:
 
-* Start Command:
-  `gunicorn app:app`
+| Field | Value |
+|---|---|
+| **Runtime** | Python 3 |
+| **Build Command** | `pip install -r requirements.txt` |
+| **Start Command** | `gunicorn app:app` |
+| **Environment Variable** | `FLASK_DEBUG=false` |
 
 ---
 
@@ -106,7 +119,7 @@ Configuration:
 
 * Epsilon-closure computation
 * Subset construction (NFA to DFA conversion)
-* Hopcroft’s algorithm for DFA minimization
+* Hopcroft's algorithm for DFA minimization
 * String simulation on finite automata
 
 ---
@@ -121,4 +134,5 @@ Configuration:
 
 ## Author
 
-Dhanuunjay Reddy
+**Dhanuunjay Reddy**  
+[GitHub](https://github.com/dhanuunjay396)
