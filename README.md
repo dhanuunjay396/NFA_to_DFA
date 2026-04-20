@@ -1,72 +1,124 @@
-# NFA → DFA Converter & Minimizer
+# NFA to DFA Converter and Minimizer
 
-A web-based simulator that converts Non-deterministic Finite Automata (NFA) to Deterministic Finite Automata (DFA) and then minimizes the DFA — built with Python (Flask) for a Theory of Computation course project.
+A web-based application that converts a Non-deterministic Finite Automaton (NFA) into a Deterministic Finite Automaton (DFA) using the subset construction method, and further minimizes the DFA using Hopcroft’s algorithm.
+
+The project is built as part of a Theory of Computation course and includes an interactive interface for constructing automata, visualizing transitions, and simulating input strings.
+
+---
+
+## Overview
+
+The application allows users to:
+
+* Define an NFA with states, transitions, start state, and accept states
+* Convert the NFA into an equivalent DFA
+* Minimize the resulting DFA
+* Simulate input strings on NFA, DFA, and minimized DFA
+* Visualize automata using graph-based representations
+
+---
 
 ## Features
 
-- **Visual NFA Builder** — Add states, transitions (including ε), mark start/accept states
-- **NFA → DFA** — Subset Construction algorithm with step-by-step breakdown
-- **DFA Minimization** — Hopcroft's algorithm with partition refinement steps
-- **Three-way Graph View** — NFA | DFA | Minimized DFA side by side (Cytoscape.js)
-- **Transition Tables** — Live transition tables for DFA and Min-DFA
-- **String Simulator** — Test any input string through all three automata
-- **Preset Examples** — ends with 'ab', even a's, contains 'aa', binary divisible by 3
+* Interactive NFA construction
+* Support for epsilon (ε) transitions
+* Subset construction algorithm for NFA to DFA conversion
+* Hopcroft’s algorithm for DFA minimization
+* Step-by-step computation tracking
+* String simulation across all automata
+* Graph visualization using Cytoscape.js
+* Transition table generation
 
-## How to Run
+---
 
-### 1. Clone the repo
-```bash
-git clone https://github.com/yourusername/nfa-dfa-converter.git
-cd nfa-dfa-converter
-```
+## Technologies Used
 
-### 2. Install dependencies
-```bash
-pip install -r requirements.txt
-```
+* Python (Flask)
+* HTML, CSS, JavaScript
+* Cytoscape.js for graph visualization
+* Gunicorn for production server
 
-### 3. Run
-```bash
-python app.py
-```
-
-### 4. Open browser
-```
-http://localhost:5000
-```
+---
 
 ## Project Structure
 
 ```
-nfa_dfa_project/
-│
-├── app.py                    ← Flask server + API routes
-├── nfa.py                    ← NFA class, ε-closure algorithm
-├── subset_construction.py    ← NFA → DFA (Subset Construction)
-├── minimizer.py              ← DFA → Min-DFA (Hopcroft's Algorithm)
+NFA_to_DFA/
+├── app.py
+├── nfa.py
+├── subset_construction.py
+├── minimizer.py
 ├── templates/
-│   └── index.html            ← Frontend (HTML + CSS + JS + Cytoscape.js)
+│   └── index.html
+├── static/
+│   ├── style.css
+│   └── app.js
 ├── requirements.txt
 └── README.md
 ```
 
+---
+
+## Running Locally
+
+1. Clone the repository:
+
+```
+git clone https://github.com/yourusername/NFA_to_DFA.git
+cd NFA_to_DFA
+```
+
+2. Install dependencies:
+
+```
+pip install -r requirements.txt
+```
+
+3. Run the application:
+
+```
+python app.py
+```
+
+4. Open a browser and go to:
+
+```
+http://localhost:5000
+```
+
+---
+
+## Deployment
+
+This project can be deployed using Render.
+
+Configuration:
+
+* Build Command:
+  `pip install -r requirements.txt`
+
+* Start Command:
+  `gunicorn app:app`
+
+---
+
 ## Algorithms Implemented
 
-| Algorithm | File | Concept |
-|---|---|---|
-| ε-closure | `nfa.py` | Reachable states via epsilon transitions |
-| Subset Construction | `subset_construction.py` | NFA → DFA conversion |
-| Hopcroft's Algorithm | `minimizer.py` | DFA state minimization |
-| String Simulation | `app.py` | Runs input strings through all automata |
+* Epsilon-closure computation
+* Subset construction (NFA to DFA conversion)
+* Hopcroft’s algorithm for DFA minimization
+* String simulation on finite automata
 
-## Tech Stack
+---
 
-- **Backend**: Python 3 + Flask
-- **Frontend**: Vanilla HTML/CSS/JS
-- **Graph Visualization**: Cytoscape.js (via CDN)
-- **No build step required**
+## Notes
 
-## Requirements
+* Input size is limited to ensure performance and stability
+* DFA validation is performed before simulation
+* The application is designed for educational and demonstration purposes
 
-- Python 3.7+
-- pip
+---
+
+## Author
+
+Dhanuunjay Reddy
