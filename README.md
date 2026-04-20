@@ -64,7 +64,7 @@ NFA_to_DFA/
 1. Clone the repository:
 
 ```
-git clone https://github.com/yourusername/NFA_to_DFA.git
+git clone https://github.com/dhanuunjay396/NFA_to_DFA.git
 cd NFA_to_DFA
 ```
 
