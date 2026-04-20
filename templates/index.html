@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NFA → DFA Converter</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600;800&family=Share+Tech+Mono&family=Nunito+Sans:opsz,wght@6..12,300;6..12,400;6..12,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <!-- ======= HEADER ======= -->
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="brand-icon">σ</div>
+      <div class="brand-text">
+        <span class="brand-title">NFA <span class="arrow">→</span> DFA</span>
+        <span class="brand-sub">Subset Construction · Hopcroft Minimization</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">☀</button>
+    </div>
+  </header>
+
+  <!-- ======= MAIN LAYOUT ======= -->
+  <div class="app-main">
+
+    <!-- ======= SIDEBAR ======= -->
+    <aside class="sidebar">
+
+      <!-- PRESETS -->
+      <section class="sidebar-section">
+        <div class="section-header">
+          <span class="section-title">Presets</span>
+        </div>
+        <div class="preset-grid">
+          <button class="preset-btn" onclick="loadPreset('ends_ab')">Ends with <em>ab</em></button>
+          <button class="preset-btn" onclick="loadPreset('even_a')">Even <em>a</em>'s</button>
+          <button class="preset-btn" onclick="loadPreset('contains_aa')">Contains <em>aa</em></button>
+          <button class="preset-btn" onclick="loadPreset('binary_div3')">Binary mod 3</button>
+        </div>
+      </section>
+
+      <!-- STATE COLOUR LEGEND -->
+      <section class="sidebar-section">
+        <div class="section-header">
+          <span class="section-title">State Legend</span>
+        </div>
+        <div class="legend-list">
+          <div class="legend-item">
+            <span class="legend-dot legend-start"></span>
+            <span class="legend-label">Initial State</span>
+            <span class="legend-color-text" style="color:#FF4040">Red</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot legend-final"></span>
+            <span class="legend-label">Final State</span>
+            <span class="legend-color-text" style="color:#3DFF6A">Green</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot legend-startfinal"></span>
+            <span class="legend-label">Initial + Final</span>
+            <span class="legend-color-text" style="color:#FF4040">Red/</span><span class="legend-color-text" style="color:#3DFF6A">Green</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot legend-intermediate"></span>
+            <span class="legend-label">Intermediate</span>
+            <span class="legend-color-text" style="color:#FFB800">Yellow</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot legend-trap"></span>
+            <span class="legend-label">Trap / Dead (∅)</span>
+            <span class="legend-color-text" style="color:#4488FF">Blue</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADD STATE -->
+      <section class="sidebar-section">
+        <div class="section-header">
+          <span class="section-title">Add State</span>
+        </div>
+        <div class="form-row">
+          <input type="text" id="stateName" class="text-input" placeholder="e.g. q0, A" maxlength="12" autocomplete="off"/>
+          <button class="btn btn-accent btn-sm" onclick="addState()">Add</button>
+        </div>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" name="stateType" id="radioStart">
+            <span class="radio-custom radio-start"></span>
+            <span>Initial</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="stateType" id="radioIntermediate" checked>
+            <span class="radio-custom radio-intermediate"></span>
+            <span>Middle</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="stateType" id="radioFinal">
+            <span class="radio-custom radio-final"></span>
+            <span>Final</span>
+          </label>
+        </div>
+        <div class="state-list" id="stateList"></div>
+      </section>
+
+      <!-- ADD TRANSITION -->
+      <section class="sidebar-section">
+        <div class="section-header">
+          <span class="section-title">Add Transition</span>
+        </div>
+        <div class="v-form">
+          <div class="field-group">
+            <label class="field-label">From</label>
+            <input type="text" id="transFrom" class="text-input" placeholder="Source state" autocomplete="off"/>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Symbol <span class="muted">(ε for epsilon)</span></label>
+            <input type="text" id="transSymbol" class="text-input" placeholder="a, b, 0, 1, ε …" autocomplete="off"/>
+          </div>
+          <div class="field-group">
+            <label class="field-label">To</label>
+            <input type="text" id="transTo" class="text-input" placeholder="Target state" autocomplete="off"/>
+          </div>
+          <button class="btn btn-accent" onclick="addTransition()">Add Transition</button>
+        </div>
+        <div class="trans-list" id="transList"></div>
+      </section>
+
+      <!-- ACTIONS -->
+      <section class="sidebar-section action-section">
+        <button class="btn btn-convert" id="convertBtn" onclick="runConversion()">
+          <span class="btn-label">CONVERT</span>
+          <span class="btn-spinner"></span>
+        </button>
+        <div class="action-row">
+          <button class="btn btn-ghost btn-sm" onclick="clearAll()">🗑 Clear</button>
+          <button class="btn btn-ghost btn-sm" onclick="layoutGraphs()">⟳ Layout</button>
+        </div>
+
+        <!-- Export dropdown -->
+        <div class="export-group">
+          <div class="export-label muted">Export</div>
+          <div class="export-btns">
+            <button class="btn btn-export btn-sm" onclick="exportDFAJSON()">DFA JSON</button>
+            <button class="btn btn-export btn-sm" onclick="exportMinDFAJSON()">Min-DFA JSON</button>
+            <button class="btn btn-export btn-sm" onclick="exportNFAPNG()">NFA PNG</button>
+            <button class="btn btn-export btn-sm" onclick="exportDFAPNG()">DFA PNG</button>
+            <button class="btn btn-export btn-sm" onclick="exportMinPNG()">Min PNG</button>
+          </div>
+        </div>
+      </section>
+
+    </aside>
+
+    <!-- ======= CONTENT ======= -->
+    <main class="content">
+
+      <!-- TAB BAR -->
+      <nav class="tab-bar">
+        <button class="tab-btn active" data-tab="graphs" onclick="switchTab('graphs')">
+          <span class="tab-icon">◈</span> Graphs
+        </button>
+        <button class="tab-btn" data-tab="steps" onclick="switchTab('steps')">
+          <span class="tab-icon">≡</span> Steps
+        </button>
+        <button class="tab-btn" data-tab="tables" onclick="switchTab('tables')">
+          <span class="tab-icon">⊞</span> Tables
+        </button>
+        <button class="tab-btn" data-tab="simulate" onclick="switchTab('simulate')">
+          <span class="tab-icon">▶</span> Simulate
+        </button>
+      </nav>
+
+      <!-- TAB PANELS -->
+      <div class="tab-panels">
+
+        <!-- GRAPHS -->
+        <div class="tab-panel active" id="panel-graphs">
+          <div class="graphs-grid">
+
+            <!-- NFA -->
+            <div class="graph-card">
+              <div class="graph-card-header">
+                <div class="graph-dot dot-cyan"></div>
+                <span>NFA</span>
+              </div>
+              <div class="cy-container" id="cy-nfa"></div>
+            </div>
+
+            <!-- DFA -->
+            <div class="graph-card">
+              <div class="graph-card-header">
+                <div class="graph-dot dot-pink"></div>
+                <span>DFA</span>
+                <span class="graph-badge" id="dfa-count" style="display:none"></span>
+              </div>
+              <div class="cy-container" id="cy-dfa">
+                <div class="placeholder">
+                  <div class="ph-icon">⬡</div>
+                  <p>Awaiting conversion…</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Min-DFA -->
+            <div class="graph-card">
+              <div class="graph-card-header">
+                <div class="graph-dot dot-green"></div>
+                <span>Min-DFA</span>
+                <span class="graph-badge" id="min-count" style="display:none"></span>
+              </div>
+              <div class="cy-container" id="cy-min">
+                <div class="placeholder">
+                  <div class="ph-icon">⬡</div>
+                  <p>Awaiting conversion…</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- STEPS -->
+        <div class="tab-panel" id="panel-steps">
+          <div class="scroll-panel" id="stepsContent">
+            <div class="empty-state">
+              <span class="empty-icon">≡</span>
+              <p>Run conversion to see construction steps.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABLES -->
+        <div class="tab-panel" id="panel-tables">
+          <div class="scroll-panel" id="tablesContent">
+            <div class="empty-state">
+              <span class="empty-icon">⊞</span>
+              <p>Run conversion to view transition tables.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SIMULATE -->
+        <div class="tab-panel" id="panel-simulate">
+          <div class="scroll-panel simulate-panel">
+            <div class="sim-header">
+              <h2 class="sim-title">String Simulator</h2>
+              <p class="sim-subtitle">Test if a string is accepted by each automaton</p>
+            </div>
+            <div class="sim-input-bar">
+              <input type="text" id="simInput" class="text-input sim-input" placeholder="Enter string (e.g. ab, 101, aab …)" autocomplete="off"/>
+              <button class="btn btn-sim" onclick="runSimulate()">▶ Run</button>
+            </div>
+            <div id="simResult"></div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- STATUS TOAST -->
+  <div id="statusToast" class="status-toast"></div>
+
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</body>
+</html>
